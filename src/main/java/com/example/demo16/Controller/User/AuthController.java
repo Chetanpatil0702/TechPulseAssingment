@@ -3,6 +3,7 @@ package com.example.demo16.Controller.User;
 
 import com.example.demo16.Configuration.Security.Jwt.JwtUtils;
 import com.example.demo16.Dto.User.AuthRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +21,7 @@ public class AuthController {
     private JwtUtils jwtUtils;
 
     @PostMapping("/login")
-    public String login(@RequestBody AuthRequest request) {
+    public String login(@Valid @RequestBody AuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );

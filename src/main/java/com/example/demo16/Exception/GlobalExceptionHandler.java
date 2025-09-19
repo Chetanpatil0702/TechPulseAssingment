@@ -74,37 +74,30 @@ public class GlobalExceptionHandler {
                 .body(new GenericResponse(false, "Something went wrong. Please try again later."));
     }
 
-    // 🔹 Handle JWT Expired Token
+    // Handle Expired JWT
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<Map<String, Object>> handleExpiredJwtException(ExpiredJwtException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.UNAUTHORIZED.value());
-        body.put("error", "Token Expired");
-        body.put("message", "Your JWT token has expired, please login again.");
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", LocalDateTime.now().toString());
+        error.put("status", HttpStatus.UNAUTHORIZED.value());
+        error.put("error", "Unauthorized");
+        error.put("message", "JWT token has expired. Please log in again.");
+        error.put("details", ex.getMessage());
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    // 🔹 Handle Invalid JWT Signature
-    @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<Map<String, Object>> handleSignatureException(SignatureException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.UNAUTHORIZED.value());
-        body.put("error", "Invalid Token Signature");
-        body.put("message", "JWT signature does not match.");
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
-    }
+    // (Optional) Handle any other JWT-related issues
+    @ExceptionHandler(io.jsonwebtoken.JwtException.class)
+    public ResponseEntity<Map<String, Object>> handleJwtException(io.jsonwebtoken.JwtException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", LocalDateTime.now().toString());
+        error.put("status", HttpStatus.UNAUTHORIZED.value());
+        error.put("error", "Unauthorized");
+        error.put("message", "Invalid JWT token");
+        error.put("details", ex.getMessage());
 
-    // 🔹 Handle Malformed or Unsupported JWT
-    @ExceptionHandler({MalformedJwtException.class, UnsupportedJwtException.class, IllegalArgumentException.class})
-    public ResponseEntity<Map<String, Object>> handleInvalidJwt(Exception ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Invalid Token");
-        body.put("message", "The provided JWT token is invalid.");
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
 }
